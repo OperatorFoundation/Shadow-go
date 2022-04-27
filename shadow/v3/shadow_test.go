@@ -35,7 +35,7 @@ import (
 const data = "test"
 
 func TestMain(m *testing.M) {
-	config :=  NewServerConfig("1234", "CHACHA20-IETF-POLY1305")
+	config := NewServerConfig("1234", "DarkStar")
 	listener, listenErr := config.Listen("127.0.0.1:1236")
 	if listenErr != nil {
 		return
@@ -70,7 +70,7 @@ func acceptConnections(listener net.Listener) {
 
 func TestShadow(t *testing.T) {
 	//create a server
-	config := NewClientConfig("1234", "CHACHA20-IETF-POLY1305", "127.0.0.1:1236")
+	config := NewClientConfig("1234", "DarkStar", "127.0.0.1:1236")
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)
@@ -101,7 +101,7 @@ func TestShadow(t *testing.T) {
 func TestShadowFactory(t *testing.T) {
 	//create a server
 	MakeLog()
-	transport := NewTransport("1234", "CHACHA20-IETF-POLY1305", "127.0.0.1:1236")
+	transport := NewTransport("1234", "DarkStar", "127.0.0.1:1236")
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)
