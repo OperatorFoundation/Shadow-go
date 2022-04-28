@@ -35,7 +35,7 @@ import (
 const data = "test"
 
 func TestMain(m *testing.M) {
-	config := NewServerConfig("1234", "DarkStar")
+	config := NewServerConfig("dd5e9e88d13e66017eb2087b128c1009539d446208f86173e30409a898ada148", "DarkStar")
 	listener, listenErr := config.Listen("127.0.0.1:1236")
 	if listenErr != nil {
 		return
@@ -70,7 +70,7 @@ func acceptConnections(listener net.Listener) {
 
 func TestShadow(t *testing.T) {
 	//create a server
-	config := NewClientConfig("1234", "DarkStar", "127.0.0.1:1236")
+	config := NewClientConfig("d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "DarkStar", "127.0.0.1:1236")
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)

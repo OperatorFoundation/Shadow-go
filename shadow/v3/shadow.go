@@ -26,10 +26,10 @@
 package shadow
 
 import (
-	shadowsocks "github.com/OperatorFoundation/go-shadowsocks2/core"
-	"github.com/kataras/golog"
-	"log"
+	"github.com/OperatorFoundation/go-shadowsocks2/darkstar"
 	"net"
+	"strconv"
+	"strings"
 )
 
 //Config contains the necessary command like arguments to run shadow
@@ -49,6 +49,33 @@ type Transport struct {
 	Password   string
 	CipherName string
 	Address    string
+}
+
+type ShadowListener struct {
+	Password string
+	Address  string
+	Listener net.Listener
+}
+
+func (s ShadowListener) Accept() (net.Conn, error) {
+	addressArray := strings.Split(s.Address, ":")
+	host := addressArray[0]
+	port, stringErr := strconv.Atoi(addressArray[1])
+	if stringErr != nil {
+		return nil, stringErr
+	}
+
+	server := darkstar.NewDarkStarServer(s.Password, host, port)
+	c, err := s.Listener.Accept()
+	return server.StreamConn(c), err
+}
+
+func (s ShadowListener) Close() error {
+	return s.Listener.Close()
+}
+
+func (s ShadowListener) Addr() net.Addr {
+	return s.Listener.Addr()
 }
 
 //NewConfig is used to create a config for testing
@@ -78,56 +105,68 @@ func NewTransport(password string, cipherName string, address string) Transport 
 
 //Listen checks for a working connection
 func (config ServerConfig) Listen(address string) (net.Listener, error) {
-	cipher, err := shadowsocks.PickCipher(config.CipherName, nil, config.Password)
+	l, err := net.Listen("tcp", address)
 	if err != nil {
-		golog.Errorf("Failed generating ciphers:", err)
 		return nil, err
 	}
 
-	listener, listenerErr := shadowsocks.Listen("tcp", address, cipher)
-	if listenerErr != nil {
-		log.Fatal("Failed to start listener:", listenerErr)
-		return nil, listenerErr
+	shadowListener := ShadowListener{
+		Password: config.Password,
+		Address:  address,
+		Listener: l,
 	}
-	return listener, nil
+
+	return shadowListener, nil
 }
 
 //Dial connects to the address on the named network
 func (config ClientConfig) Dial(address string) (net.Conn, error) {
-	cipher, err := shadowsocks.PickCipher(config.CipherName, nil, config.Password)
-	if err != nil {
-		log.Fatal("Failed generating ciphers:", err)
+	addressArray := strings.Split(address, ":")
+	//portArray := strings.SplitAfter(address, ":")
+	host := addressArray[0]
+	port, stringErr := strconv.Atoi(addressArray[1])
+	if stringErr != nil {
+		return nil, stringErr
+	}
+	client := darkstar.NewDarkStarClient(config.Password, host, port)
+
+	netConn, dialError := net.Dial("tcp", address)
+	if dialError != nil {
+		return nil, dialError
 	}
 
-	conn, err := shadowsocks.Dial("tcp", address, cipher)
-	if err != nil {
-		return nil, err
-	}
-
-	return conn, nil
+	return client.StreamConn(netConn), nil
 }
 
 // Dial creates outgoing transport connection
 func (transport *Transport) Dial() (net.Conn, error) {
-	cipher, err := shadowsocks.PickCipher(transport.CipherName, nil, transport.Password)
-	if err != nil {
-		log.Fatal("Failed generating ciphers:", err)
+	addressArray := strings.Split(transport.Address, ":")
+	host := addressArray[0]
+	port, stringErr := strconv.Atoi(addressArray[1])
+	if stringErr != nil {
+		return nil, stringErr
 	}
 
-	return shadowsocks.Dial("tcp", transport.Address, cipher)
+	client := darkstar.NewDarkStarClient(transport.Password, host, port)
+	netConn, dialError := net.Dial("tcp", transport.Address)
+	if dialError != nil {
+		return nil, dialError
+	}
+
+	return client.StreamConn(netConn), nil
 }
 
 func (transport *Transport) Listen() (net.Listener, error) {
-	cipher, err := shadowsocks.PickCipher(transport.CipherName, nil, transport.Password)
+	listener, err := net.Listen("tcp", transport.Address)
 	if err != nil {
-		log.Fatal("Failed generating ciphers:", err)
 		return nil, err
 	}
 
-	listener, listenerErr := shadowsocks.Listen("tcp", transport.Address, cipher)
-	if listenerErr != nil {
-		log.Fatal("Failed to start listener:", listenerErr)
-		return nil, listenerErr
+	shadowListener := ShadowListener{
+		Password: transport.Password,
+		Address:  transport.Address,
+		Listener: listener,
 	}
-	return listener, nil
+
+	return shadowListener, nil
 }
