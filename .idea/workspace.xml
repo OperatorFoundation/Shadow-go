@@ -8,8 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shadow/v3/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shadow/v3/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shadow/v3/shadow.go" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/shadow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shadow/v3/shadow_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/shadow_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
