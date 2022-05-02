@@ -3,7 +3,7 @@ module github.com/OperatorFoundation/Shadow-go/shadow/v3
 go 1.17
 
 require (
-	github.com/OperatorFoundation/go-shadowsocks2 v1.1.5
+	github.com/OperatorFoundation/go-shadowsocks2 v1.1.6
 	github.com/kataras/golog v0.0.18
 )
 
