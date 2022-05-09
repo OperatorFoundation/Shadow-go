@@ -69,11 +69,11 @@ func acceptConnections(listener net.Listener) {
 }
 
 func TestShadow(t *testing.T) {
-	//create a server
 	config := NewClientConfig("d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "DarkStar", "127.0.0.1:1236")
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)
+
 	//call dial on client and check error
 	clientConn, dialErr := config.Dial("127.0.0.1:1236")
 	if dialErr != nil {
@@ -99,12 +99,12 @@ func TestShadow(t *testing.T) {
 	}
 }
 func TestShadowFactory(t *testing.T) {
-	//create a server
 	MakeLog()
-	transport := NewTransport("1234", "DarkStar", "127.0.0.1:1236")
+	transport := NewTransport("d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "DarkStar", "127.0.0.1:1236")
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)
+
 	//call dial on client and check error
 	clientConn, dialErr := transport.Dial()
 	if dialErr != nil {
