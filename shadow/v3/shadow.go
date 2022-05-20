@@ -26,6 +26,7 @@
 package shadow
 
 import (
+	"errors"
 	"net"
 	"strconv"
 	"strings"
@@ -33,7 +34,6 @@ import (
 	"github.com/OperatorFoundation/go-shadowsocks2/darkstar"
 )
 
-//Config contains the necessary command like arguments to run shadow
 type ClientConfig struct {
 	Password   string `json:"password"`
 	CipherName string `json:"cipherName"`
@@ -45,7 +45,6 @@ type ServerConfig struct {
 	CipherName string `json:"cipherName"`
 }
 
-//Transport contains the arguments to be used with Optimizer
 type Transport struct {
 	Password   string
 	CipherName string
@@ -82,7 +81,6 @@ func (s ShadowListener) Addr() net.Addr {
 	return s.Listener.Addr()
 }
 
-//NewConfig is used to create a config for testing
 func NewClientConfig(password string, cipherName string, address string) ClientConfig {
 	return ClientConfig{
 		Password:   password,
@@ -98,7 +96,6 @@ func NewServerConfig(password string, cipherName string) ServerConfig {
 	}
 }
 
-//NewTransport is used for creating a transport for Optimizer
 func NewTransport(password string, cipherName string, address string) Transport {
 	return Transport{
 		Password:   password,
@@ -107,7 +104,7 @@ func NewTransport(password string, cipherName string, address string) Transport 
 	}
 }
 
-//Listen checks for a working connection
+// Listen checks for a working connection
 func (config ServerConfig) Listen(address string) (net.Listener, error) {
 	l, err := net.Listen("tcp", address)
 	if err != nil {
@@ -123,27 +120,35 @@ func (config ServerConfig) Listen(address string) (net.Listener, error) {
 	return shadowListener, nil
 }
 
-//Dial connects to the address on the named network
+// Dial connects to the server and returns a DarkStar connection if the handshake was successful
 func (config ClientConfig) Dial(address string) (net.Conn, error) {
+
+	// Get a host and port from the provided address string
 	addressArray := strings.Split(address, ":")
-	//portArray := strings.SplitAfter(address, ":")
 	host := addressArray[0]
 	port, stringErr := strconv.Atoi(addressArray[1])
 	if stringErr != nil {
 		return nil, stringErr
 	}
-	client := darkstar.NewDarkStarClient(config.Password, host, port)
 
+	// Create a new  DarkStarClient
+	darkStarClient := darkstar.NewDarkStarClient(config.Password, host, port)
+
+	// Create a network connection
 	netConn, dialError := net.Dial("tcp", address)
 	if dialError != nil {
 		return nil, dialError
 	}
 
-	return client.StreamConn(netConn)
+	// Attempts to connect with the server and complete a handshake
+	// If the handshake is successful, returns a DarkStar connection
+	return darkStarClient.StreamConn(netConn)
 }
 
-// Dial creates outgoing transport connection
+// Dial connects to the server and returns a DarkStar connection if the handshake was successful
 func (transport *Transport) Dial() (net.Conn, error) {
+
+	// Get a host and port from the transport address string
 	addressArray := strings.Split(transport.Address, ":")
 	host := addressArray[0]
 	port, stringErr := strconv.Atoi(addressArray[1])
@@ -151,13 +156,21 @@ func (transport *Transport) Dial() (net.Conn, error) {
 		return nil, stringErr
 	}
 
-	client := darkstar.NewDarkStarClient(transport.Password, host, port)
+	// Create a new  DarkStarClient
+	darkStarClient := darkstar.NewDarkStarClient(transport.Password, host, port)
+	if darkStarClient == nil {
+		return nil, errors.New("failed to create a DarkStarClient with the provided password")
+	}
+
+	// Create a network connection
 	netConn, dialError := net.Dial("tcp", transport.Address)
 	if dialError != nil {
 		return nil, dialError
 	}
 
-	return client.StreamConn(netConn)
+	// Attempts to connect with the server and complete a handshake
+	// If the handshake is successful, returns a DarkStar connection
+	return darkStarClient.StreamConn(netConn)
 }
 
 func (transport *Transport) Listen() (net.Listener, error) {
