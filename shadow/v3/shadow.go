@@ -26,10 +26,11 @@
 package shadow
 
 import (
-	"github.com/OperatorFoundation/go-shadowsocks2/darkstar"
 	"net"
 	"strconv"
 	"strings"
+
+	"github.com/OperatorFoundation/go-shadowsocks2/darkstar"
 )
 
 //Config contains the necessary command like arguments to run shadow
@@ -67,7 +68,10 @@ func (s ShadowListener) Accept() (net.Conn, error) {
 
 	server := darkstar.NewDarkStarServer(s.Password, host, port)
 	c, err := s.Listener.Accept()
-	return server.StreamConn(c), err
+	if err != nil {
+		return nil, err
+	}
+	return server.StreamConn(c)
 }
 
 func (s ShadowListener) Close() error {
@@ -135,7 +139,7 @@ func (config ClientConfig) Dial(address string) (net.Conn, error) {
 		return nil, dialError
 	}
 
-	return client.StreamConn(netConn), nil
+	return client.StreamConn(netConn)
 }
 
 // Dial creates outgoing transport connection
@@ -153,7 +157,7 @@ func (transport *Transport) Dial() (net.Conn, error) {
 		return nil, dialError
 	}
 
-	return client.StreamConn(netConn), nil
+	return client.StreamConn(netConn)
 }
 
 func (transport *Transport) Listen() (net.Listener, error) {

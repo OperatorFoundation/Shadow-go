@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="39a87b75-5302-484c-88c6-019b93585934" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shadow/v3/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shadow/v3/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shadow/v3/bloomfilter.gob" beforeDir="false" afterPath="$PROJECT_DIR$/shadow/v3/bloomfilter.gob" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,6 +75,21 @@
           <url>file://$PROJECT_DIR$/../go/pkg/mod/github.com/!operator!foundation/go-shadowsocks2@v1.1.0/core/cipher.go</url>
           <line>64</line>
           <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/../go/pkg/mod/github.com/!operator!foundation/go-shadowsocks2@v1.1.6/darkstar/cipher.go</url>
+          <line>121</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/crypto/aes/aes_gcm.go</url>
+          <line>171</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file:///usr/local/go/src/crypto/aes/aes_gcm.go</url>
+          <line>185</line>
+          <option name="timeStamp" value="25" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
