@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/OperatorFoundation/locket-go"
 	"github.com/OperatorFoundation/go-shadowsocks2/darkstar"
 )
 
@@ -38,23 +39,27 @@ type ClientConfig struct {
 	Password   string `json:"password"`
 	CipherName string `json:"cipherName"`
 	Address    string `json:"address"`
+	LogDir     *string
 }
 
 type ServerConfig struct {
 	Password   string `json:"password"`
 	CipherName string `json:"cipherName"`
+	LogDir     *string
 }
 
 type Transport struct {
 	Password   string
 	CipherName string
 	Address    string
+	LogDir     *string
 }
 
 type ShadowListener struct {
 	Password string
 	Address  string
 	Listener net.Listener
+	LogDir   *string
 }
 
 func (s ShadowListener) Accept() (net.Conn, error) {
@@ -70,6 +75,14 @@ func (s ShadowListener) Accept() (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if s.LogDir != nil {
+		c, err = locketgo.NewLocketConn(c, *s.LogDir, "ShadowServer")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return server.StreamConn(c)
 }
 
@@ -81,26 +94,29 @@ func (s ShadowListener) Addr() net.Addr {
 	return s.Listener.Addr()
 }
 
-func NewClientConfig(password string, cipherName string, address string) ClientConfig {
+func NewClientConfig(password string, cipherName string, address string, logDir *string) ClientConfig {
 	return ClientConfig{
 		Password:   password,
 		CipherName: cipherName,
 		Address:    address,
+		LogDir:     logDir,
 	}
 }
 
-func NewServerConfig(password string, cipherName string) ServerConfig {
+func NewServerConfig(password string, cipherName string, logDir *string) ServerConfig {
 	return ServerConfig{
 		Password:   password,
 		CipherName: cipherName,
+		LogDir:     logDir,
 	}
 }
 
-func NewTransport(password string, cipherName string, address string) Transport {
+func NewTransport(password string, cipherName string, address string, logDir *string) Transport {
 	return Transport{
 		Password:   password,
 		CipherName: cipherName,
 		Address:    address,
+		LogDir:     logDir,
 	}
 }
 
@@ -115,6 +131,7 @@ func (config ServerConfig) Listen(address string) (net.Listener, error) {
 		Password: config.Password,
 		Address:  address,
 		Listener: l,
+		LogDir:   config.LogDir,
 	}
 
 	return shadowListener, nil
@@ -138,6 +155,13 @@ func (config ClientConfig) Dial(address string) (net.Conn, error) {
 	netConn, dialError := net.Dial("tcp", address)
 	if dialError != nil {
 		return nil, dialError
+	}
+
+	if config.LogDir != nil {
+		netConn, dialError = locketgo.NewLocketConn(netConn, *config.LogDir, "ShadowClient")
+		if dialError != nil {
+			return nil, dialError
+		}
 	}
 
 	// Attempts to connect with the server and complete a handshake
@@ -168,6 +192,13 @@ func (transport *Transport) Dial() (net.Conn, error) {
 		return nil, dialError
 	}
 
+	if transport.LogDir != nil {
+		netConn, dialError = locketgo.NewLocketConn(netConn, *transport.LogDir, "ShadowClient")
+		if dialError != nil {
+			return nil, dialError
+		}
+	}
+
 	// Attempts to connect with the server and complete a handshake
 	// If the handshake is successful, returns a DarkStar connection
 	return darkStarClient.StreamConn(netConn)
@@ -183,6 +214,7 @@ func (transport *Transport) Listen() (net.Listener, error) {
 		Password: transport.Password,
 		Address:  transport.Address,
 		Listener: listener,
+		LogDir:   transport.LogDir,
 	}
 
 	return shadowListener, nil
