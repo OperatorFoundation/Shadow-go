@@ -36,30 +36,34 @@ import (
 )
 
 type ClientConfig struct {
-	Password   string `json:"password"`
-	CipherName string `json:"cipherName"`
-	Address    string `json:"address"`
-	LogDir     *string
+	ServerAddress   string  `json:"serverAddress"`  
+	ServerPublicKey string  `json:"serverPublicKey"`
+	CipherName      string  `json:"cipherName"`     
+	Transport       string  `json:"transport"`
+	LogDir     		*string `json:"logDir"`
 }
 
 type ServerConfig struct {
-	Password   string `json:"password"`
-	CipherName string `json:"cipherName"`
-	LogDir     *string
+	ServerAddress    string  `json:"serverAddress"`   
+	ServerPrivateKey string  `json:"serverPrivateKey"`
+	CipherName       string  `json:"cipherName"`      
+	Transport        string  `json:"transport"`  
+	LogDir    		 *string `json:"logDir"`
 }
 
 type Transport struct {
-	Password   string
-	CipherName string
-	Address    string
-	LogDir     *string
+	ServerAddress string
+	ServerKey  	  string
+	CipherName 	  string
+	LogDir    	  *string
 }
 
 type ShadowListener struct {
-	Password string
-	Address  string
-	Listener net.Listener
-	LogDir   *string
+	Address  		 string
+	ServerPrivateKey string
+	CipherName		 string
+	Listener 		 net.Listener
+	LogDir   		 *string
 }
 
 func (s ShadowListener) Accept() (net.Conn, error) {
@@ -70,7 +74,6 @@ func (s ShadowListener) Accept() (net.Conn, error) {
 		return nil, stringErr
 	}
 
-	server := darkstar.NewDarkStarServer(s.Password, host, port)
 	c, err := s.Listener.Accept()
 	if err != nil {
 		return nil, err
@@ -83,7 +86,13 @@ func (s ShadowListener) Accept() (net.Conn, error) {
 		}
 	}
 
+	if s.CipherName == "darkstar" {
+	server := darkstar.NewDarkStarServer(s.ServerPrivateKey, host, port)
+	
 	return server.StreamConn(c)
+	} else {
+		return nil, errors.New("invalid cipher name")
+	}
 }
 
 func (s ShadowListener) Close() error {
@@ -94,65 +103,75 @@ func (s ShadowListener) Addr() net.Addr {
 	return s.Listener.Addr()
 }
 
-func NewClientConfig(password string, cipherName string, address string, logDir *string) ClientConfig {
+func NewClientConfig(serverAddress string, serverPublicKey string, cipherName string, transport string, logDir *string) ClientConfig {
 	return ClientConfig{
-		Password:   password,
-		CipherName: cipherName,
-		Address:    address,
-		LogDir:     logDir,
+		ServerAddress: 	 serverAddress,
+		ServerPublicKey: serverPublicKey,
+		CipherName:    	 cipherName,
+		Transport: 		 transport,
+		LogDir:     	 logDir,
 	}
 }
 
-func NewServerConfig(password string, cipherName string, logDir *string) ServerConfig {
+func NewServerConfig(serverAddress string, serverPrivateKey string, cipherName string, transport string, logDir *string) ServerConfig {
 	return ServerConfig{
-		Password:   password,
-		CipherName: cipherName,
-		LogDir:     logDir,
+		ServerAddress: 	  serverAddress,
+		ServerPrivateKey: serverPrivateKey,
+		CipherName:    	  cipherName,
+		Transport: 		  transport,
+		LogDir:     	  logDir,
 	}
 }
 
-func NewTransport(password string, cipherName string, address string, logDir *string) Transport {
+func NewTransport(serverAddress string, serverKey string, cipherName string, logDir *string) Transport {
 	return Transport{
-		Password:   password,
-		CipherName: cipherName,
-		Address:    address,
-		LogDir:     logDir,
+		ServerAddress: serverAddress,
+		ServerKey:     serverKey,
+		CipherName:	   cipherName,
+		LogDir:        logDir,
 	}
 }
 
 // Listen checks for a working connection
-func (config ServerConfig) Listen(address string) (net.Listener, error) {
-	l, err := net.Listen("tcp", address)
+func (config ServerConfig) Listen() (net.Listener, error) {
+	// Verify the transport name on the config
+	if config.Transport != "shadow" {
+		return nil, errors.New("incorrect transport name")
+	}
+
+	l, err := net.Listen("tcp", config.ServerAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	shadowListener := ShadowListener{
-		Password: config.Password,
-		Address:  address,
-		Listener: l,
-		LogDir:   config.LogDir,
+		Address:  		  config.ServerAddress,
+		ServerPrivateKey: config.ServerPrivateKey,
+		CipherName:		  config.CipherName,
+		Listener: 		  l,
+		LogDir:   		  config.LogDir,
 	}
 
 	return shadowListener, nil
 }
 
 // Dial connects to the server and returns a DarkStar connection if the handshake was successful
-func (config ClientConfig) Dial(address string) (net.Conn, error) {
+func (config ClientConfig) Dial() (net.Conn, error) {
+	// Verify the transport name on the config
+	if config.Transport != "shadow" {
+		return nil, errors.New("incorrect transport name")
+	}
 
 	// Get a host and port from the provided address string
-	addressArray := strings.Split(address, ":")
+	addressArray := strings.Split(config.ServerAddress, ":")
 	host := addressArray[0]
 	port, stringErr := strconv.Atoi(addressArray[1])
 	if stringErr != nil {
 		return nil, stringErr
 	}
 
-	// Create a new  DarkStarClient
-	darkStarClient := darkstar.NewDarkStarClient(config.Password, host, port)
-
 	// Create a network connection
-	netConn, dialError := net.Dial("tcp", address)
+	netConn, dialError := net.Dial("tcp", config.ServerAddress)
 	if dialError != nil {
 		return nil, dialError
 	}
@@ -164,16 +183,23 @@ func (config ClientConfig) Dial(address string) (net.Conn, error) {
 		}
 	}
 
+	if config.CipherName == "darkstar" {
+	// Create a new  DarkStarClient
+	darkStarClient := darkstar.NewDarkStarClient(config.ServerPublicKey, host, port)
+	
 	// Attempts to connect with the server and complete a handshake
 	// If the handshake is successful, returns a DarkStar connection
 	return darkStarClient.StreamConn(netConn)
+	} else {
+		return nil, errors.New("invalid cipher name")
+	}
 }
 
 // Dial connects to the server and returns a DarkStar connection if the handshake was successful
 func (transport *Transport) Dial() (net.Conn, error) {
 
 	// Get a host and port from the transport address string
-	addressArray := strings.Split(transport.Address, ":")
+	addressArray := strings.Split(transport.ServerAddress, ":")
 	host := addressArray[0]
 	port, stringErr := strconv.Atoi(addressArray[1])
 	if stringErr != nil {
@@ -181,13 +207,13 @@ func (transport *Transport) Dial() (net.Conn, error) {
 	}
 
 	// Create a new  DarkStarClient
-	darkStarClient := darkstar.NewDarkStarClient(transport.Password, host, port)
+	darkStarClient := darkstar.NewDarkStarClient(transport.ServerKey, host, port)
 	if darkStarClient == nil {
 		return nil, errors.New("failed to create a DarkStarClient with the provided password")
 	}
 
 	// Create a network connection
-	netConn, dialError := net.Dial("tcp", transport.Address)
+	netConn, dialError := net.Dial("tcp", transport.ServerAddress)
 	if dialError != nil {
 		return nil, dialError
 	}
@@ -205,16 +231,17 @@ func (transport *Transport) Dial() (net.Conn, error) {
 }
 
 func (transport *Transport) Listen() (net.Listener, error) {
-	listener, err := net.Listen("tcp", transport.Address)
+	listener, err := net.Listen("tcp", transport.ServerAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	shadowListener := ShadowListener{
-		Password: transport.Password,
-		Address:  transport.Address,
-		Listener: listener,
-		LogDir:   transport.LogDir,
+		Address:  		  transport.ServerAddress,
+		ServerPrivateKey: transport.ServerKey,
+		CipherName:		  transport.CipherName,
+		Listener: 		  listener,
+		LogDir:   		  transport.LogDir,
 	}
 
 	return shadowListener, nil

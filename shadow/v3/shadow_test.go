@@ -35,8 +35,9 @@ import (
 const data = "test"
 
 func TestMain(m *testing.M) {
-	config := NewServerConfig("dd5e9e88d13e66017eb2087b128c1009539d446208f86173e30409a898ada148", "DarkStar", nil)
-	listener, listenErr := config.Listen("127.0.0.1:1236")
+	logDir := "/Users/bluesaxorcist/Desktop"
+	config := NewServerConfig("127.0.0.1:1236", "dd5e9e88d13e66017eb2087b128c1009539d446208f86173e30409a898ada148", "darkstar", "shadow", &logDir)
+	listener, listenErr := config.Listen()
 	if listenErr != nil {
 		return
 	}
@@ -69,13 +70,14 @@ func acceptConnections(listener net.Listener) {
 }
 
 func TestShadow(t *testing.T) {
-	config := NewClientConfig("d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "DarkStar", "127.0.0.1:1236", nil)
+	logDir := "/Users/bluesaxorcist/Desktop"
+	config := NewClientConfig("127.0.0.1:1236", "d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "darkstar", "shadow", &logDir)
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)
 
 	//call dial on client and check error
-	clientConn, dialErr := config.Dial("127.0.0.1:1236")
+	clientConn, dialErr := config.Dial()
 	if dialErr != nil {
 		fmt.Println("clientConn Dial error")
 		t.Fail()
@@ -100,7 +102,8 @@ func TestShadow(t *testing.T) {
 }
 func TestShadowFactory(t *testing.T) {
 	MakeLog()
-	transport := NewTransport("d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "DarkStar", "127.0.0.1:1236", nil)
+	logDir := "/Users/bluesaxorcist/Desktop"
+	transport := NewTransport("127.0.0.1:1236", "d089c225ef8cda8d477a586f062b31a756270124d94944e458edf1a9e1e41ed6", "darkstar", &logDir)
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)
