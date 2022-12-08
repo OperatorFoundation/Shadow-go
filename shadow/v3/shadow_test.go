@@ -26,17 +26,18 @@ package shadow
 
 import (
 	"fmt"
-	"github.com/kataras/golog"
 	"net"
 	"os"
 	"testing"
+
+	"github.com/kataras/golog"
 )
 
 const data = "test"
 
 func TestMain(m *testing.M) {
 	logDir := "/Users/bluesaxorcist/Desktop"
-	config := NewServerConfig("127.0.0.1:1236", "RaHouPFVOazVSqInoMm8BSO9o/7J493y4cUVofmwXAU=", "darkstar", "shadow", &logDir)
+	config := NewServerConfig("127.0.0.1:1236", "RaHouPFVOazVSqInoMm8BSO9o/7J493y4cUVofmwXAU=", "darkstar", "Shadow", &logDir)
 	listener, listenErr := config.Listen()
 	if listenErr != nil {
 		return
@@ -71,7 +72,7 @@ func acceptConnections(listener net.Listener) {
 
 func TestShadow(t *testing.T) {
 	logDir := "/Users/bluesaxorcist/Desktop"
-	config := NewClientConfig("127.0.0.1:1236", "6LukZ8KqZLQ7eOdaTVFkBVqMA8NS1AUxwqG17L/kHnQ=", "darkstar", "shadow", &logDir)
+	config := NewClientConfig("127.0.0.1:1236", "6LukZ8KqZLQ7eOdaTVFkBVqMA8NS1AUxwqG17L/kHnQ=", "darkstar", "Shadow", &logDir)
 
 	//create client buffer
 	clientBuffer := make([]byte, 4)

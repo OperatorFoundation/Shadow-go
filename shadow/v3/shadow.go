@@ -31,39 +31,39 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/OperatorFoundation/locket-go"
 	"github.com/OperatorFoundation/go-shadowsocks2/darkstar"
+	locketgo "github.com/OperatorFoundation/locket-go"
 )
 
 type ClientConfig struct {
-	ServerAddress   string  `json:"serverAddress"`  
+	ServerAddress   string  `json:"serverAddress"`
 	ServerPublicKey string  `json:"serverPublicKey"`
-	CipherName      string  `json:"cipherName"`     
+	CipherName      string  `json:"cipherName"`
 	Transport       string  `json:"transport"`
-	LogDir     		*string `json:"logDir"`
+	LogDir          *string `json:"logDir"`
 }
 
 type ServerConfig struct {
-	ServerAddress    string  `json:"serverAddress"`   
+	ServerAddress    string  `json:"serverAddress"`
 	ServerPrivateKey string  `json:"serverPrivateKey"`
-	CipherName       string  `json:"cipherName"`      
-	Transport        string  `json:"transport"`  
-	LogDir    		 *string `json:"logDir"`
+	CipherName       string  `json:"cipherName"`
+	Transport        string  `json:"transport"`
+	LogDir           *string `json:"logDir"`
 }
 
 type Transport struct {
 	ServerAddress string
-	ServerKey  	  string
-	CipherName 	  string
-	LogDir    	  *string
+	ServerKey     string
+	CipherName    string
+	LogDir        *string
 }
 
 type ShadowListener struct {
-	Address  		 string
+	Address          string
 	ServerPrivateKey string
-	CipherName		 string
-	Listener 		 net.Listener
-	LogDir   		 *string
+	CipherName       string
+	Listener         net.Listener
+	LogDir           *string
 }
 
 func (s ShadowListener) Accept() (net.Conn, error) {
@@ -87,9 +87,9 @@ func (s ShadowListener) Accept() (net.Conn, error) {
 	}
 
 	if s.CipherName == "darkstar" {
-	server := darkstar.NewDarkStarServer(s.ServerPrivateKey, host, port)
-	
-	return server.StreamConn(c)
+		server := darkstar.NewDarkStarServer(s.ServerPrivateKey, host, port)
+
+		return server.StreamConn(c)
 	} else {
 		return nil, errors.New("invalid cipher name")
 	}
@@ -105,21 +105,21 @@ func (s ShadowListener) Addr() net.Addr {
 
 func NewClientConfig(serverAddress string, serverPublicKey string, cipherName string, transport string, logDir *string) ClientConfig {
 	return ClientConfig{
-		ServerAddress: 	 serverAddress,
+		ServerAddress:   serverAddress,
 		ServerPublicKey: serverPublicKey,
-		CipherName:    	 cipherName,
-		Transport: 		 transport,
-		LogDir:     	 logDir,
+		CipherName:      cipherName,
+		Transport:       transport,
+		LogDir:          logDir,
 	}
 }
 
 func NewServerConfig(serverAddress string, serverPrivateKey string, cipherName string, transport string, logDir *string) ServerConfig {
 	return ServerConfig{
-		ServerAddress: 	  serverAddress,
+		ServerAddress:    serverAddress,
 		ServerPrivateKey: serverPrivateKey,
-		CipherName:    	  cipherName,
-		Transport: 		  transport,
-		LogDir:     	  logDir,
+		CipherName:       cipherName,
+		Transport:        transport,
+		LogDir:           logDir,
 	}
 }
 
@@ -127,7 +127,7 @@ func NewTransport(serverAddress string, serverKey string, cipherName string, log
 	return Transport{
 		ServerAddress: serverAddress,
 		ServerKey:     serverKey,
-		CipherName:	   cipherName,
+		CipherName:    cipherName,
 		LogDir:        logDir,
 	}
 }
@@ -135,7 +135,7 @@ func NewTransport(serverAddress string, serverKey string, cipherName string, log
 // Listen checks for a working connection
 func (config ServerConfig) Listen() (net.Listener, error) {
 	// Verify the transport name on the config
-	if config.Transport != "shadow" {
+	if config.Transport != "Shadow" {
 		return nil, errors.New("incorrect transport name")
 	}
 
@@ -145,11 +145,11 @@ func (config ServerConfig) Listen() (net.Listener, error) {
 	}
 
 	shadowListener := ShadowListener{
-		Address:  		  config.ServerAddress,
+		Address:          config.ServerAddress,
 		ServerPrivateKey: config.ServerPrivateKey,
-		CipherName:		  config.CipherName,
-		Listener: 		  l,
-		LogDir:   		  config.LogDir,
+		CipherName:       config.CipherName,
+		Listener:         l,
+		LogDir:           config.LogDir,
 	}
 
 	return shadowListener, nil
@@ -158,7 +158,7 @@ func (config ServerConfig) Listen() (net.Listener, error) {
 // Dial connects to the server and returns a DarkStar connection if the handshake was successful
 func (config ClientConfig) Dial() (net.Conn, error) {
 	// Verify the transport name on the config
-	if config.Transport != "shadow" {
+	if config.Transport != "Shadow" {
 		return nil, errors.New("incorrect transport name")
 	}
 
@@ -184,12 +184,12 @@ func (config ClientConfig) Dial() (net.Conn, error) {
 	}
 
 	if config.CipherName == "darkstar" {
-	// Create a new  DarkStarClient
-	darkStarClient := darkstar.NewDarkStarClient(config.ServerPublicKey, host, port)
-	
-	// Attempts to connect with the server and complete a handshake
-	// If the handshake is successful, returns a DarkStar connection
-	return darkStarClient.StreamConn(netConn)
+		// Create a new  DarkStarClient
+		darkStarClient := darkstar.NewDarkStarClient(config.ServerPublicKey, host, port)
+
+		// Attempts to connect with the server and complete a handshake
+		// If the handshake is successful, returns a DarkStar connection
+		return darkStarClient.StreamConn(netConn)
 	} else {
 		return nil, errors.New("invalid cipher name")
 	}
@@ -237,11 +237,11 @@ func (transport *Transport) Listen() (net.Listener, error) {
 	}
 
 	shadowListener := ShadowListener{
-		Address:  		  transport.ServerAddress,
+		Address:          transport.ServerAddress,
 		ServerPrivateKey: transport.ServerKey,
-		CipherName:		  transport.CipherName,
-		Listener: 		  listener,
-		LogDir:   		  transport.LogDir,
+		CipherName:       transport.CipherName,
+		Listener:         listener,
+		LogDir:           transport.LogDir,
 	}
 
 	return shadowListener, nil
