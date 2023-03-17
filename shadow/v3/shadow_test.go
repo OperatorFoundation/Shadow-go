@@ -36,7 +36,7 @@ import (
 const data = "test"
 
 func TestMain(m *testing.M) {
-	logDir := "/Users/bluesaxorcist/Desktop"
+	logDir := ""
 	config := NewServerConfig("127.0.0.1:1236", "RaHouPFVOazVSqInoMm8BSO9o/7J493y4cUVofmwXAU=", "darkstar", "Shadow", &logDir)
 	listener, listenErr := config.Listen()
 	if listenErr != nil {
@@ -71,7 +71,7 @@ func acceptConnections(listener net.Listener) {
 }
 
 func TestShadow(t *testing.T) {
-	logDir := "/Users/bluesaxorcist/Desktop"
+	logDir := ""
 	config := NewClientConfig("127.0.0.1:1236", "6LukZ8KqZLQ7eOdaTVFkBVqMA8NS1AUxwqG17L/kHnQ=", "darkstar", "Shadow", &logDir)
 
 	//create client buffer
@@ -103,7 +103,7 @@ func TestShadow(t *testing.T) {
 }
 func TestShadowFactory(t *testing.T) {
 	MakeLog()
-	logDir := "/Users/bluesaxorcist/Desktop"
+	logDir := ""
 	transport := NewTransport("127.0.0.1:1236", "6LukZ8KqZLQ7eOdaTVFkBVqMA8NS1AUxwqG17L/kHnQ=", "darkstar", &logDir)
 
 	//create client buffer
