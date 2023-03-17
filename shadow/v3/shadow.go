@@ -86,7 +86,7 @@ func (s ShadowListener) Accept() (net.Conn, error) {
 		}
 	}
 
-	if s.CipherName == "darkstar" {
+	if strings.ToLower(s.CipherName) == "darkstar" {
 		server := darkstar.NewDarkStarServer(s.ServerPrivateKey, host, port)
 
 		return server.StreamConn(c)
@@ -135,7 +135,7 @@ func NewTransport(serverAddress string, serverKey string, cipherName string, log
 // Listen checks for a working connection
 func (config ServerConfig) Listen() (net.Listener, error) {
 	// Verify the transport name on the config
-	if config.Transport != "Shadow" {
+	if strings.ToLower(config.Transport) != "shadow" {
 		return nil, errors.New("incorrect transport name")
 	}
 
@@ -158,7 +158,7 @@ func (config ServerConfig) Listen() (net.Listener, error) {
 // Dial connects to the server and returns a DarkStar connection if the handshake was successful
 func (config ClientConfig) Dial() (net.Conn, error) {
 	// Verify the transport name on the config
-	if config.Transport != "Shadow" {
+	if strings.ToLower(config.Transport) != "shadow" {
 		return nil, errors.New("incorrect transport name")
 	}
 
@@ -183,7 +183,7 @@ func (config ClientConfig) Dial() (net.Conn, error) {
 		}
 	}
 
-	if config.CipherName == "darkstar" {
+	if strings.ToLower(config.CipherName) == "darkstar" {
 		// Create a new  DarkStarClient
 		darkStarClient := darkstar.NewDarkStarClient(config.ServerPublicKey, host, port)
 
