@@ -40,7 +40,7 @@ type ClientConfig struct {
 	ServerPublicKey string  `json:"serverPublicKey"`
 	CipherName      string  `json:"cipherName"`
 	Transport       string  `json:"transport"`
-	LogDir          *string
+	LogDir          *string `json:"-"`
 }
 
 type ServerConfig struct {
@@ -48,7 +48,7 @@ type ServerConfig struct {
 	ServerPrivateKey string  `json:"serverPrivateKey"`
 	CipherName       string  `json:"cipherName"`
 	Transport        string  `json:"transport"`
-	LogDir           *string
+	LogDir           *string `json:"-"`
 }
 
 type Transport struct {
