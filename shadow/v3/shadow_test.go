@@ -37,7 +37,7 @@ const data = "test"
 
 func TestMain(m *testing.M) {
 	logDir := ""
-	config := NewServerConfig("127.0.0.1:1236", "RaHouPFVOazVSqInoMm8BSO9o/7J493y4cUVofmwXAU=", "darkstar", "Shadow", &logDir)
+	config := NewServerConfig("127.0.0.1:1236", "RaHouPFVOazVSqInoMm8BSO9o/7J493y4cUVofmwXAU=", "darkstar", "Shadow", &logDir, nil)
 	listener, listenErr := config.Listen()
 	if listenErr != nil {
 		return

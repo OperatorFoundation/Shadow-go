@@ -48,6 +48,7 @@ type ServerConfig struct {
 	ServerPrivateKey string  `json:"serverPrivateKey"`
 	CipherName       string  `json:"cipherName"`
 	Transport        string  `json:"transport"`
+	BindAddress		 *string `json:"bindAddress"`
 	LogDir           *string `json:"-"`
 }
 
@@ -113,13 +114,14 @@ func NewClientConfig(serverAddress string, serverPublicKey string, cipherName st
 	}
 }
 
-func NewServerConfig(serverAddress string, serverPrivateKey string, cipherName string, transport string, logDir *string) ServerConfig {
+func NewServerConfig(serverAddress string, serverPrivateKey string, cipherName string, transport string, logDir *string, bindAddress *string) ServerConfig {
 	return ServerConfig{
 		ServerAddress:    serverAddress,
 		ServerPrivateKey: serverPrivateKey,
 		CipherName:       cipherName,
 		Transport:        transport,
 		LogDir:           logDir,
+		BindAddress: 	  bindAddress,	
 	}
 }
 
